@@ -19,9 +19,95 @@
     }
   ],
   "version": "0.0.1",
-  "name": "conditions-lens",
+  "name": "Condition and health problems Lens",
+   "_name": {
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "es"
+          },
+          {
+            "url": "content",
+            "valueString": "Lente de Condiciones y Problemas de Salud"
+          }
+        ]
+      },
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "pt"
+          },
+          {
+            "url": "content",
+            "valueString": "Lente de Condições e Problemas de Saúde"
+          }
+        ]
+      },
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "da"
+          },
+          {
+            "url": "content",
+            "valueString": "Linse for Tilstande og Sundhedsproblemer"
+          }
+        ]
+      }
+    ]
+  },
   "date": "2024-06-12T13:25:04.852Z",
-  "title": "Conditions",
+  "title": "Condition and health problems Lens",
+    "_title": {
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "es"
+          },
+          {
+            "url": "content",
+            "valueString": "Lente de Condiciones y Problemas de Salud"
+          }
+        ]
+      },
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "pt"
+          },
+          {
+            "url": "content",
+            "valueString": "Lente de Condições e Problemas de Saúde"
+          }
+        ]
+      },
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "da"
+          },
+          {
+            "url": "content",
+            "valueString": "Linse for Tilstande og Sundhedsproblemer"
+          }
+        ]
+      }
+    ]
+  },
   "status": "draft",
   "experimental": true,
   "type": {
@@ -44,18 +130,147 @@
     }
   ],
   "description": "A lens that highlight any information related to all kinds of conditions",
+   "_description": {
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "es"
+          },
+          {
+            "url": "content",
+            "valueString": "Una lente que resalta cualquier información relacionada con todo tipo de condiciones."
+          }
+        ]
+      },
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "pt"
+          },
+          {
+            "url": "content",
+            "valueString": "Uma lente que destaca qualquer informação relacionada com todos os tipos de condições."
+          }
+        ]
+      },
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "da"
+          },
+          {
+            "url": "content",
+            "valueString": "En linse, der fremhæver al information relateret til alle slags tilstande."
+          }
+        ]
+      }
+    ]
+  },
   "jurisdiction": [
     {
       "coding": [
         {
-          "code": "US",
+          "code": "EU",
           "system": "urn:iso:std:iso:3166"
         }
       ]
     }
   ],
   "purpose": "Clarify the important things related to your conditions on an ePI",
-  "usage": "This lens requires a preprocessed ePI, and an IPS to work",
+   "_purpose": {
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "es"
+          },
+          {
+            "url": "content",
+            "valueString": "Aclarar los aspectos importantes relacionados con tus condiciones en una ePI."
+          }
+        ]
+      },
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "pt"
+          },
+          {
+            "url": "content",
+            "valueString": "Esclarecer os pontos importantes relacionados com as tuas condições em uma ePI."
+          }
+        ]
+      },
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "da"
+          },
+          {
+            "url": "content",
+            "valueString": "Klargør de vigtige ting vedrørende dine tilstande i en ePI."
+          }
+        ]
+      }
+    ]
+  },
+  "usage": "This lens requires a preprocessed ePI, and an IPS to work. You can import this lens directly to your FHIR Server which suports Library Resource type.",
+   "_usage": {
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "es"
+          },
+          {
+            "url": "content",
+            "valueString": "Esta lente requiere una ePI preprocesada y un IPS para funcionar. Puedes importar esta lente directamente en tu servidor FHIR que soporte el tipo de recurso Library."
+          }
+        ]
+      },
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "pt"
+          },
+          {
+            "url": "content",
+            "valueString": "Esta lente requer uma ePI pré-processada e um IPS para funcionar. Podes importar esta lente diretamente para o teu servidor FHIR que suporte o tipo de recurso Library."
+          }
+        ]
+      },
+      {
+        "url": "http://hl7.org/fhir/StructureDefinition/translation",
+        "extension": [
+          {
+            "url": "lang",
+            "valueCode": "da"
+          },
+          {
+            "url": "content",
+            "valueString": "Denne linse kræver en forbehandlet ePI og en IPS for at fungere. Du kan importere denne linse direkte til din FHIR-server, som understøtter ressource-typen Library."
+          }
+        ]
+      }
+    ]
+  },
   "copyright": "© 2024 Gravitate Health",
   "parameter": [
     {
