@@ -8,3 +8,5 @@ on:
 jobs:
   delete-and-upload-lens:
     uses: Gravitate-Health/reusable-workflows/.github/workflows/lenses-delete-and-upload.yaml@main
+    with:
+      tag: "v0.1.0"
