@@ -1,0 +1,35 @@
+@startuml
+title Highlight HTML Based on Matching Conditions in IPS and ePI
+
+start
+
+:Check if IPS is empty;
+if (IPS is valid?) then (yes)
+  :Extract condition codes from IPS;
+  if (No conditions found?) then (yes)
+    :Return unmodified HTML;
+    stop
+  else (conditions found)
+    :Iterate ePI entries for Composition;
+    :Extract categories matching condition codes;
+    
+    if (No Composition found?) then (yes)
+      :Throw Error "No Composition found";
+      stop
+    else
+      if (No category matched?) then (yes)
+        :Return unmodified HTML;
+        stop
+      else (some categories found)
+        :Annotate HTML with "highlight" for each category;
+        :Return modified HTML;
+        stop
+      endif
+    endif
+  endif
+else (no)
+  :Throw Error "Empty IPS";
+  stop
+endif
+
+@enduml
