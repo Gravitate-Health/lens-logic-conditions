@@ -8,15 +8,70 @@ let getSpecification = () => {
     return "1.0.0";
 };
 
+// --- Language dictionary for user-facing messages ---
+const languageDict = {
+    en: {
+        report: (conditions) => conditions.length
+            ? `You are seeing this because you have: ${conditions.join(", ")}.`
+            : "No relevant conditions detected.",
+        explanation: (conditions) => conditions.length
+            ? `The following conditions were detected and highlighted: ${conditions.join(", ")}.`
+            : "No conditions found in your health record."
+    },
+    es: {
+        report: (conditions) => conditions.length
+            ? `Ves esto porque tienes: ${conditions.join(", ")}.`
+            : "No se detectaron condiciones relevantes.",
+        explanation: (conditions) => conditions.length
+            ? `Se detectaron y resaltaron las siguientes condiciones: ${conditions.join(", ")}.`
+            : "No se encontraron condiciones en su historial de salud."
+    },
+    pt: {
+        report: (conditions) => conditions.length
+            ? `Você está vendo isso porque tem: ${conditions.join(", ")}.`
+            : "Nenhuma condição relevante detectada.",
+        explanation: (conditions) => conditions.length
+            ? `As seguintes condições foram detectadas e destacadas: ${conditions.join(", ")}.`
+            : "Nenhuma condição encontrada no seu histórico de saúde."
+    },
+    da: {
+        report: (conditions) => conditions.length
+            ? `Du ser dette, fordi du har: ${conditions.join(", ")}.`
+            : "Ingen relevante tilstande fundet.",
+        explanation: (conditions) => conditions.length
+            ? `Følgende tilstande blev fundet og fremhævet: ${conditions.join(", ")}.`
+            : "Ingen tilstande fundet i din journal."
+    }
+};
+
+let detectedConditions = [];
+
 let enhance = async () => {
+    // --- Language detection from ePI ---
+    let languageDetected = null;
+    if (epi && epi.entry) {
+        epi.entry.forEach((entry) => {
+            const res = entry.resource;
+            if (res?.resourceType === "Composition" && res.language) {
+                languageDetected = res.language;
+                console.log("🌍 Detected from Composition.language:", languageDetected);
+            }
+        });
+    }
+    if (!languageDetected && epi && epi.language) {
+        languageDetected = epi.language;
+        console.log("🌍 Detected from Bundle.language:", languageDetected);
+    }
+    if (!languageDetected) {
+        console.warn("⚠️ No language detected in Composition or Bundle.");
+    }
     // Proves that IPS exists
     if (ips == "" || ips == null) {
         throw new Error("Failed to load IPS: the LEE is getting a empty IPS");
     }
-
     // Instantiates the array of condition codes
     let arrayOfConditionCodes = [];
-
+    detectedConditions = [];
     // Iterates through the IPS entry searching for conditions
     ips.entry.forEach((element) => {
         if (element.resource.resourceType == "Condition") {
@@ -27,34 +82,29 @@ let enhance = async () => {
                         system: coding.system,
                     });
                 });
+                // Try to get the display name for the condition
+                if (element.resource.code.text) {
+                    detectedConditions.push(element.resource.code.text);
+                }
             }
         }
     });
-
     // If there are no conditions, return the ePI as it is
     if (arrayOfConditionCodes.length == 0) {
         return htmlData;
     }
-
-    // ePI traslation from terminology codes to their human redable translations in the sections
+    // ePI translation from terminology codes to their human readable translations in the sections
     let compositions = 0;
     let categories = [];
     epi.entry.forEach((entry) => {
         if (entry.resource.resourceType == "Composition") {
             compositions++;
-            //Iterated through the Condition element searching for conditions
             entry.resource.extension.forEach((element) => {
-                
-                // Check if the position of the extension[1] is correct
                 if (element.extension[1].url == "concept") {
-                    // Search through the different terminologies that may be avaible to check in the condition
                     if (element.extension[1].valueCodeableReference.concept != undefined) {
                         element.extension[1].valueCodeableReference.concept.coding.forEach(
                             (coding) => {
-                                console.log("Extension: " + element.extension[0].valueString + ":" + coding.code + " - " + coding.system)
-                                // Check if the code is in the list of categories to search
                                 if (equals(arrayOfConditionCodes, { code: coding.code, system: coding.system })) {
-                                    // Check if the category is already in the list of categories
                                     categories.push(element.extension[0].valueString);
                                 }
                             }
@@ -64,16 +114,13 @@ let enhance = async () => {
             });
         }
     });
-
     if (compositions == 0) {
         throw new Error('Bad ePI: no category "Composition" found');
     }
-
     if (categories.length == 0) {
         return htmlData;
     }
-    
-    //Focus (adds highlight class) the html applying every category found
+    // Focus (adds highlight class) the html applying every category found
     return await annotateHTMLsection(categories, "highlight");
 };
 
@@ -131,7 +178,20 @@ let equals = (array, object) => {
     });
 }
 
+let explanationfunction = async (lang = "en") => {
+    return {
+        conditions: detectedConditions,
+        message: languageDict[lang].explanation(detectedConditions)
+    };
+};
+
+let reportfunction = async (lang = "en") => {
+    return languageDict[lang].report(detectedConditions);
+};
+
 return {
     enhance: enhance,
     getSpecification: getSpecification,
+    explanation: explanationfunction,
+    report: reportfunction
 };

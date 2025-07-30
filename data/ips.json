@@ -1,0 +1,1 @@
+{"resourceType":"Bundle","entry":[{"resource":{"resourceType":"Patient","gender":"female","birthDate":"1990-01-01"}},{"resource":{"resourceType":"Condition","code":{"coding":[{"code":"C001","system":"http://snomed.info/sct"}],"text":"Diabetes"}}},{"resource":{"resourceType":"Condition","code":{"coding":[{"code":"C002","system":"http://snomed.info/sct"}],"text":"Hypertension"}}}]}
