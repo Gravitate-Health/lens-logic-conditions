@@ -52,10 +52,11 @@ describe("Conditions Lens Script", () => {
     const annotation = vm.runInContext(wrappedScript, context);
     await annotation.enhance();
     const explanation = await annotation.explanation("en");
-    expect(explanation.conditions.length).toBe(0);
-    expect(explanation.message).toMatch(/no conditions/i);
+    expect(typeof explanation).toBe("string");
+    expect(explanation).toMatch(/no conditions/i);
     const report = await annotation.report("en");
-    expect(report).toMatch(/no relevant/i);
+    expect(report.message).toMatch(/no relevant/i);
+    expect(report.conditions.length).toBe(0);
   });
 
   test("should return explanation and report for one condition", async () => {
@@ -78,10 +79,11 @@ describe("Conditions Lens Script", () => {
     const annotation = vm.runInContext(wrappedScript, context);
     await annotation.enhance();
     const explanation = await annotation.explanation("en");
-    expect(explanation.conditions).toContain("Diabetes");
-    expect(explanation.message).toMatch(/diabetes/i);
+    expect(typeof explanation).toBe("string");
+    expect(explanation).toMatch(/diabetes/i);
     const report = await annotation.report("en");
-    expect(report).toMatch(/diabetes/i);
+    expect(report.conditions).toContain("Diabetes");
+    expect(report.message).toMatch(/diabetes/i);
   });
 
   test("should return explanation and report for multiple conditions", async () => {
@@ -113,9 +115,10 @@ describe("Conditions Lens Script", () => {
     const annotation = vm.runInContext(wrappedScript, context);
     await annotation.enhance();
     const explanation = await annotation.explanation("en");
-    expect(explanation.conditions).toEqual(expect.arrayContaining(["Diabetes", "Hypertension"]));
-    expect(explanation.message).toMatch(/diabetes.*hypertension|hypertension.*diabetes/i);
+    expect(typeof explanation).toBe("string");
+    expect(explanation).toMatch(/diabetes.*hypertension|hypertension.*diabetes/i);
     const report = await annotation.report("en");
-    expect(report).toMatch(/diabetes.*hypertension|hypertension.*diabetes/i);
+    expect(report.conditions).toEqual(expect.arrayContaining(["Diabetes", "Hypertension"]));
+    expect(report.message).toMatch(/diabetes.*hypertension|hypertension.*diabetes/i);
   });
 });

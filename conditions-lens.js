@@ -178,15 +178,28 @@ let equals = (array, object) => {
     });
 }
 
+let getLanguageMessages = (lang = "en") => {
+    const normalizedLang = (lang || "en").toLowerCase();
+    if (languageDict[normalizedLang]) {
+        return languageDict[normalizedLang];
+    }
+
+    const baseLang = normalizedLang.split("-")[0];
+    return languageDict[baseLang] || languageDict.en;
+};
+
 let explanationfunction = async (lang = "en") => {
-    return {
-        conditions: detectedConditions,
-        message: languageDict[lang].explanation(detectedConditions)
-    };
+    const messages = getLanguageMessages(lang);
+    return messages.explanation(detectedConditions);
 };
 
 let reportfunction = async (lang = "en") => {
-    return languageDict[lang].report(detectedConditions);
+    const messages = getLanguageMessages(lang);
+    return {
+        message: messages.report(detectedConditions),
+        conditions: [...detectedConditions],
+        status: ""
+    };
 };
 
 return {
