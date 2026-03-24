@@ -11,40 +11,65 @@ let getSpecification = () => {
 // --- Language dictionary for user-facing messages ---
 const languageDict = {
     en: {
-        report: (conditions) => conditions.length
-            ? `You are seeing this because you have: ${conditions.join(", ")}.`
-            : "No relevant conditions detected.",
-        explanation: (conditions) => conditions.length
-            ? `The following conditions were detected and highlighted: ${conditions.join(", ")}.`
-            : "No conditions found in your health record."
+        report: (conditions, sections) => {
+            if (!conditions.length) return "No relevant conditions detected.";
+            const condStr = conditions.join(", ");
+            const sectStr = sections.length ? ` Highlighted sections: ${sections.join(", ")}.` : "";
+            return `You are seeing this because you have: ${condStr}.${sectStr}`;
+        },
+        explanation: (conditions, sections) => {
+            if (!conditions.length) return "No conditions found in your health record.";
+            const condStr = conditions.join(", ");
+            const sectStr = sections.length ? ` The following ePI sections were highlighted: ${sections.join(", ")}.` : "";
+            return `Conditions detected in your health record: ${condStr}.${sectStr}`;
+        }
     },
     es: {
-        report: (conditions) => conditions.length
-            ? `Ves esto porque tienes: ${conditions.join(", ")}.`
-            : "No se detectaron condiciones relevantes.",
-        explanation: (conditions) => conditions.length
-            ? `Se detectaron y resaltaron las siguientes condiciones: ${conditions.join(", ")}.`
-            : "No se encontraron condiciones en su historial de salud."
+        report: (conditions, sections) => {
+            if (!conditions.length) return "No se detectaron condiciones relevantes.";
+            const condStr = conditions.join(", ");
+            const sectStr = sections.length ? ` Secciones resaltadas: ${sections.join(", ")}.` : "";
+            return `Ves esto porque tienes: ${condStr}.${sectStr}`;
+        },
+        explanation: (conditions, sections) => {
+            if (!conditions.length) return "No se encontraron condiciones en su historial de salud.";
+            const condStr = conditions.join(", ");
+            const sectStr = sections.length ? ` Las siguientes secciones del ePI fueron resaltadas: ${sections.join(", ")}.` : "";
+            return `Condiciones detectadas en su historial: ${condStr}.${sectStr}`;
+        }
     },
     pt: {
-        report: (conditions) => conditions.length
-            ? `Você está vendo isso porque tem: ${conditions.join(", ")}.`
-            : "Nenhuma condição relevante detectada.",
-        explanation: (conditions) => conditions.length
-            ? `As seguintes condições foram detectadas e destacadas: ${conditions.join(", ")}.`
-            : "Nenhuma condição encontrada no seu histórico de saúde."
+        report: (conditions, sections) => {
+            if (!conditions.length) return "Nenhuma condição relevante detectada.";
+            const condStr = conditions.join(", ");
+            const sectStr = sections.length ? ` Secções destacadas: ${sections.join(", ")}.` : "";
+            return `Você está vendo isso porque tem: ${condStr}.${sectStr}`;
+        },
+        explanation: (conditions, sections) => {
+            if (!conditions.length) return "Nenhuma condição encontrada no seu histórico de saúde.";
+            const condStr = conditions.join(", ");
+            const sectStr = sections.length ? ` As seguintes secções do ePI foram destacadas: ${sections.join(", ")}.` : "";
+            return `Condições detetadas no seu histórico: ${condStr}.${sectStr}`;
+        }
     },
     da: {
-        report: (conditions) => conditions.length
-            ? `Du ser dette, fordi du har: ${conditions.join(", ")}.`
-            : "Ingen relevante tilstande fundet.",
-        explanation: (conditions) => conditions.length
-            ? `Følgende tilstande blev fundet og fremhævet: ${conditions.join(", ")}.`
-            : "Ingen tilstande fundet i din journal."
+        report: (conditions, sections) => {
+            if (!conditions.length) return "Ingen relevante tilstande fundet.";
+            const condStr = conditions.join(", ");
+            const sectStr = sections.length ? ` Fremhævede sektioner: ${sections.join(", ")}.` : "";
+            return `Du ser dette, fordi du har: ${condStr}.${sectStr}`;
+        },
+        explanation: (conditions, sections) => {
+            if (!conditions.length) return "Ingen tilstande fundet i din journal.";
+            const condStr = conditions.join(", ");
+            const sectStr = sections.length ? ` Følgende ePI-sektioner blev fremhævet: ${sections.join(", ")}.` : "";
+            return `Tilstande fundet i din journal: ${condStr}.${sectStr}`;
+        }
     }
 };
 
 let detectedConditions = [];
+let matchedCategories = [];
 
 let enhance = async () => {
     // --- Language detection from ePI ---
@@ -72,19 +97,28 @@ let enhance = async () => {
     // Instantiates the array of condition codes
     let arrayOfConditionCodes = [];
     detectedConditions = [];
+    matchedCategories = [];
     // Iterates through the IPS entry searching for conditions
     ips.entry.forEach((element) => {
         if (element.resource.resourceType == "Condition") {
             if (element.resource.code != undefined) {
+                let displayName = element.resource.code.text;
                 element.resource.code.coding.forEach((coding) => {
                     arrayOfConditionCodes.push({
                         code: coding.code,
                         system: coding.system,
                     });
+                    // Fallback to coding.display if no code.text
+                    if (!displayName && coding.display) {
+                        displayName = coding.display;
+                    }
                 });
-                // Try to get the display name for the condition
-                if (element.resource.code.text) {
-                    detectedConditions.push(element.resource.code.text);
+                // Last resort: use the first code value
+                if (!displayName && element.resource.code.coding.length > 0) {
+                    displayName = element.resource.code.coding[0].code;
+                }
+                if (displayName) {
+                    detectedConditions.push(displayName);
                 }
             }
         }
@@ -120,6 +154,7 @@ let enhance = async () => {
     if (categories.length == 0) {
         return htmlData;
     }
+    matchedCategories = [...categories];
     // Focus (adds highlight class) the html applying every category found
     return await annotateHTMLsection(categories, "highlight");
 };
@@ -190,14 +225,15 @@ let getLanguageMessages = (lang = "en") => {
 
 let explanationfunction = async (lang = "en") => {
     const messages = getLanguageMessages(lang);
-    return messages.explanation(detectedConditions);
+    return messages.explanation(detectedConditions, matchedCategories);
 };
 
 let reportfunction = async (lang = "en") => {
     const messages = getLanguageMessages(lang);
     return {
-        message: messages.report(detectedConditions),
+        message: messages.report(detectedConditions, matchedCategories),
         conditions: [...detectedConditions],
+        sections: [...matchedCategories],
         status: ""
     };
 };
