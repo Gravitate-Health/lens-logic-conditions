@@ -90,7 +90,7 @@ let enhance = async () => {
     if (ips == "" || ips == null) {
         throw new Error("Failed to load IPS: the LEE is getting a empty IPS");
     }
-    // Instantiates the array of condition codes
+    // Instantiates the array of condition codes (with display name attached)
     let arrayOfConditionCodes = [];
     detectedConditions = [];
     matchedCategories = [];
@@ -100,22 +100,20 @@ let enhance = async () => {
             if (element.resource.code != undefined) {
                 let displayName = element.resource.code.text;
                 element.resource.code.coding.forEach((coding) => {
-                    arrayOfConditionCodes.push({
-                        code: coding.code,
-                        system: coding.system,
-                    });
-                    // Fallback to coding.display if no code.text
                     if (!displayName && coding.display) {
                         displayName = coding.display;
                     }
                 });
-                // Last resort: use the first code value
                 if (!displayName && element.resource.code.coding.length > 0) {
                     displayName = element.resource.code.coding[0].code;
                 }
-                if (displayName) {
-                    detectedConditions.push(displayName);
-                }
+                element.resource.code.coding.forEach((coding) => {
+                    arrayOfConditionCodes.push({
+                        code: coding.code,
+                        system: coding.system,
+                        display: displayName,
+                    });
+                });
             }
         }
     });
@@ -134,8 +132,14 @@ let enhance = async () => {
                     if (element.extension[1].valueCodeableReference.concept != undefined) {
                         element.extension[1].valueCodeableReference.concept.coding.forEach(
                             (coding) => {
-                                if (equals(arrayOfConditionCodes, { code: coding.code, system: coding.system })) {
+                                const matched = arrayOfConditionCodes.find(
+                                    c => c.code === coding.code && c.system === coding.system
+                                );
+                                if (matched) {
                                     categories.push(element.extension[0].valueString);
+                                    if (matched.display && !detectedConditions.includes(matched.display)) {
+                                        detectedConditions.push(matched.display);
+                                    }
                                 }
                             }
                         );
