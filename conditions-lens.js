@@ -11,59 +11,55 @@ let getSpecification = () => {
 // --- Language dictionary for user-facing messages ---
 const languageDict = {
     en: {
-        report: (conditions, sections) => {
+        report: (conditions) => {
             if (!conditions.length) return "No relevant conditions detected.";
-            const condStr = conditions.join(", ");
-            const sectStr = sections.length ? ` Highlighted sections: ${sections.join(", ")}.` : "";
-            return `You are seeing this because you have: ${condStr}.${sectStr}`;
+            const condStr = conditions.length === 1
+                ? `"${conditions[0]}"`
+                : conditions.map(c => `"${c}"`).join(" and ");
+            return `This part was highlighted because you have a record of a diagnosis of ${condStr}.`;
         },
-        explanation: (conditions, sections) => {
+        explanation: (conditions) => {
             if (!conditions.length) return "No conditions found in your health record.";
-            const condStr = conditions.join(", ");
-            const sectStr = sections.length ? ` The following ePI sections were highlighted: ${sections.join(", ")}.` : "";
-            return `Conditions detected in your health record: ${condStr}.${sectStr}`;
+            const condStr = conditions.length === 1
+                ? `"${conditions[0]}"`
+                : conditions.map(c => `"${c}"`).join(" and ");
+            return `This part was highlighted because you have a record of a diagnosis of ${condStr}.`;
         }
     },
     es: {
-        report: (conditions, sections) => {
+        report: (conditions) => {
             if (!conditions.length) return "No se detectaron condiciones relevantes.";
-            const condStr = conditions.join(", ");
-            const sectStr = sections.length ? ` Secciones resaltadas: ${sections.join(", ")}.` : "";
-            return `Ves esto porque tienes: ${condStr}.${sectStr}`;
+            const condStr = conditions.map(c => `"${c}"`).join(" y ");
+            return `Esta parte fue resaltada porque tiene un registro de diagnóstico de ${condStr}.`;
         },
-        explanation: (conditions, sections) => {
+        explanation: (conditions) => {
             if (!conditions.length) return "No se encontraron condiciones en su historial de salud.";
-            const condStr = conditions.join(", ");
-            const sectStr = sections.length ? ` Las siguientes secciones del ePI fueron resaltadas: ${sections.join(", ")}.` : "";
-            return `Condiciones detectadas en su historial: ${condStr}.${sectStr}`;
+            const condStr = conditions.map(c => `"${c}"`).join(" y ");
+            return `Esta parte fue resaltada porque tiene un registro de diagnóstico de ${condStr}.`;
         }
     },
     pt: {
-        report: (conditions, sections) => {
+        report: (conditions) => {
             if (!conditions.length) return "Nenhuma condição relevante detectada.";
-            const condStr = conditions.join(", ");
-            const sectStr = sections.length ? ` Secções destacadas: ${sections.join(", ")}.` : "";
-            return `Você está vendo isso porque tem: ${condStr}.${sectStr}`;
+            const condStr = conditions.map(c => `"${c}"`).join(" e ");
+            return `Esta parte foi destacada porque tem um registo de diagnóstico de ${condStr}.`;
         },
-        explanation: (conditions, sections) => {
+        explanation: (conditions) => {
             if (!conditions.length) return "Nenhuma condição encontrada no seu histórico de saúde.";
-            const condStr = conditions.join(", ");
-            const sectStr = sections.length ? ` As seguintes secções do ePI foram destacadas: ${sections.join(", ")}.` : "";
-            return `Condições detetadas no seu histórico: ${condStr}.${sectStr}`;
+            const condStr = conditions.map(c => `"${c}"`).join(" e ");
+            return `Esta parte foi destacada porque tem um registo de diagnóstico de ${condStr}.`;
         }
     },
     da: {
-        report: (conditions, sections) => {
+        report: (conditions) => {
             if (!conditions.length) return "Ingen relevante tilstande fundet.";
-            const condStr = conditions.join(", ");
-            const sectStr = sections.length ? ` Fremhævede sektioner: ${sections.join(", ")}.` : "";
-            return `Du ser dette, fordi du har: ${condStr}.${sectStr}`;
+            const condStr = conditions.map(c => `"${c}"`).join(" og ");
+            return `Denne del er fremhævet, fordi du har en registreret diagnose af ${condStr}.`;
         },
-        explanation: (conditions, sections) => {
+        explanation: (conditions) => {
             if (!conditions.length) return "Ingen tilstande fundet i din journal.";
-            const condStr = conditions.join(", ");
-            const sectStr = sections.length ? ` Følgende ePI-sektioner blev fremhævet: ${sections.join(", ")}.` : "";
-            return `Tilstande fundet i din journal: ${condStr}.${sectStr}`;
+            const condStr = conditions.map(c => `"${c}"`).join(" og ");
+            return `Denne del er fremhævet, fordi du har en registreret diagnose af ${condStr}.`;
         }
     }
 };
@@ -225,13 +221,13 @@ let getLanguageMessages = (lang = "en") => {
 
 let explanationfunction = async (lang = "en") => {
     const messages = getLanguageMessages(lang);
-    return messages.explanation(detectedConditions, matchedCategories);
+    return messages.explanation(detectedConditions);
 };
 
 let reportfunction = async (lang = "en") => {
     const messages = getLanguageMessages(lang);
     return {
-        message: messages.report(detectedConditions, matchedCategories),
+        message: messages.report(detectedConditions),
         conditions: [...detectedConditions],
         sections: [...matchedCategories],
         status: ""
